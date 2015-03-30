@@ -19,6 +19,9 @@
 	alpha 2 (lfaria@2015-03-30)
 	* Added datatypes restriction based on DBML
 	* Added UNSUPPORTED data type
+	* Defined restrictions of integer size type
+	* Defined restriction of binary length multiplier and unit
+	* Used SQLIdentifier restriction on UDT datatype names
 -->
 
 
@@ -216,6 +219,9 @@ are stored as table constraints -->
 			<xs:element name="array" type="collectionDatatypeType"/>
 			<xs:element name="udt" type="udtDatatypeType"/>
 			<!-- The UNSUPPORTED datatype allows other types to be added becoming an extension point for SIARD -->
+			<!-- When using the UNSUPPORTED datatype, data is expected to be on an uncontrolled textual form
+			as dumped by the original system. -->
+			<!-- This field can contain a description of the unsupported field and how to interpret data -->
 			<xs:element name="unsupported" type="xs:string"/>
 		</xs:choice>
 	</xs:group>
@@ -272,9 +278,19 @@ are stored as table constraints -->
 			<xs:documentation> Definition of integer datatype. </xs:documentation>
 		</xs:annotation>
 
-		<!-- TODO: restrict to SMALL, MEDIUM or BIG -->
-		<xs:attribute name="size" type="xs:string"/>
+		<xs:attribute name="size" type="integerSizeType"/>
 	</xs:complexType>
+
+	<xs:simpleType name="integerSizeType">
+		<xs:annotation>
+			<xs:documentation>An integer can have three sizes: small, medium and big.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="small"/>
+			<xs:enumeration value="medium"/>
+			<xs:enumeration value="big"/>
+		</xs:restriction>
+	</xs:simpleType>
 
 	<xs:complexType name="floatDatatypeType">
 		<xs:annotation>
@@ -336,11 +352,32 @@ are stored as table constraints -->
 			<xs:documentation> Definition of binary datatype, aka BLOB. </xs:documentation>
 		</xs:annotation>
 		<xs:attribute name="length" type="xs:nonNegativeInteger"/>
-		<!-- TODO: restrict lengthMultiplier to K, M or G, or something better -->
-		<xs:attribute name="lengthMultiplier" type="xs:string"/>
-		<!-- TODO: restrict lengthUnit to CHARACTERS, CODE_UNITS or OCTETS -->
-		<xs:attribute name="lengthUnit" type="xs:string"/>
+		<xs:attribute name="lengthMultiplier" type="lengthMultiplierType"/>
+		<xs:attribute name="lengthUnit" type="lengthMultiplierType"/>
 	</xs:complexType>
+	
+	<xs:simpleType name="lengthMultiplierType">
+		<xs:annotation>
+			<xs:documentation>From the SQL:1999 BNF definition, a binary can have as length units: characters, code_units or octets. </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="characters"/>
+			<xs:enumeration value="code_units"/>
+			<xs:enumeration value="octets"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="lengthUnitType">
+		<xs:annotation>
+			<xs:documentation>From the SQL:1999 BNF definition, a binary can have as length multipliers: K (kilo), M (mega) and G (giga). </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="K"/>
+			<xs:enumeration value="M"/>
+			<xs:enumeration value="G"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
 
 	<xs:complexType name="collectionDatatypeType">
 		<xs:annotation>
@@ -358,8 +395,7 @@ are stored as table constraints -->
 			<xs:group ref="predefinedDatatypes"/>
 			<xs:element name="attributes" type="attributeListUdtDatatypeType"/>
 		</xs:choice>
-		<!-- TODO: may want to restrict name to a valid SQL Identifier -->
-		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="name" type="SQLIdentifierType" use="required"/>
 	</xs:complexType>
 
 	<xs:complexType name="attributeListUdtDatatypeType">
@@ -380,8 +416,7 @@ are stored as table constraints -->
 		<xs:sequence>
 			<xs:group ref="datatypes"/>
 		</xs:sequence>
-		<!-- TODO: may want to restrict name to a valid SQL Identifier -->
-		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="name" type="SQLIdentifierType" use="required"/>
 	</xs:complexType>
 
 	<!-- ENDED DATA TYPES DEFINITION -->
