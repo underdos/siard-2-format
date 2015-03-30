@@ -10,8 +10,7 @@ Here you will be able to find the SIARD-E specification, XML schemas and documen
 
 # Specifications
 
-* [SIARD-E 1.1 metadata schema (draft)](https://raw.githubusercontent.com/eark-project/siard-e-format/master/metadata-SIARD-E-1.1.xsd)
-* [SIARD-E 1.0 metadata schema (draft)](https://raw.githubusercontent.com/eark-project/siard-e-format/master/metadata-SIARD-E-1.0.xsd)
+* [SIARD-E 1.0 metadata schema](https://raw.githubusercontent.com/eark-project/siard-e-format/master/metadata-SIARD-E-1.0.xsd) (working draft)
 
 # Tools
 
