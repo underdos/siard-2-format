@@ -1,23 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- $Workfile: metadata.xsd $ *********************************** -->
-<!-- Metadata schema for SIARD 1.0 -->
-<!-- Version : $Id: metadata.xsd 680 2008-02-14 19:58:41Z hartwig $ -->
-<!-- Application: SIARD Suite -->
+<!-- Metadata schema for SIARD-E 1.0 alpha 2 -->
+<!-- Version: 1.1 based on $Id: metadata.xsd 680 2008-02-14 19:58:41Z hartwig $ -->
 <!-- Software-Independent Archival of Relational Databases -->
-<!-- Platform : XML 1.0, XML Schema 2001 -->
+<!-- Platform: XML 1.0, XML Schema 2001 -->
 <!-- Description: This XML schema definition defines the structure -->
 <!-- of the metadata in the SIARD format -->
 <!-- ************************************************************** -->
-<!-- Copyright : 2007, Swiss Federal Archives, Berne, Switzerland -->
+<!-- Open Standard according to http://opensource.org/osr -->
+<!-- Based on SIARD 1.0 2007 from the Swiss Federal Archives, Berne, Switzerland -->
 <!-- ************************************************************** -->
-<xs:schema targetNamespace="http://www.bar.admin.ch/xmlns/siard/1.0/metadata.xsd" xmlns="http://www.bar.admin.ch/xmlns/siard/1.0/metadata.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" id="metadata">
+<!-- 
+	CHANGELOG 
+	
+	alpha 1 (thor@2015-03-20)
+	* Added restriction on SQLIdentifier according to SIARD 1.0
+	
+	alpha 2 (lfaria@2015-03-30)
+	* Added datatypes restriction based on DBML
+	* Added UNSUPPORTED data type
+-->
+
+
+<xs:schema xmlns="https://github.com/eark-project/xmlns/siard-e/1.0/metadata.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="https://github.com/eark-project/xmlns/siard-e/1.0/metadata.xsd"
+	elementFormDefault="qualified" attributeFormDefault="unqualified" id="metadata">
 	<!-- root element of an XML file conforming to this XML schema -->
 	<xs:element name="siardArchive">
 		<xs:complexType>
 			<xs:annotation>
-				<xs:documentation>
-Root element of meta data of the SIARD archive
-</xs:documentation>
+				<xs:documentation> Root element of meta data of the SIARD archive
+				</xs:documentation>
 			</xs:annotation>
 			<xs:sequence>
 				<xs:element name="dbname" type="mandatoryString"/>
@@ -69,12 +83,11 @@ Root element of meta data of the SIARD archive
 	<!-- complex type schema -->
 	<xs:complexType name="schemaType">
 		<xs:annotation>
-			<xs:documentation>
-Schema element in siardArchive
-</xs:documentation>
+			<xs:documentation> Schema element in siardArchive </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="name" type="xs:string"/>
+			<xs:element name="name" type="SQLIdentifierType"/>
+			<!-- changed from xs:string -->
 			<xs:element name="folder" type="fsName"/>
 			<xs:element name="description" type="xs:string" minOccurs="0"/>
 			<xs:element name="tables" type="tablesType"/>
@@ -91,9 +104,7 @@ Schema element in siardArchive
 	<!-- complex type tables -->
 	<xs:complexType name="tablesType">
 		<xs:annotation>
-			<xs:documentation>
-List of tables
-</xs:documentation>
+			<xs:documentation> List of tables </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="table" type="tableType" maxOccurs="unbounded"/>
@@ -102,12 +113,11 @@ List of tables
 	<!-- complex type table -->
 	<xs:complexType name="tableType">
 		<xs:annotation>
-			<xs:documentation>
-Table element in siardArchive
-</xs:documentation>
+			<xs:documentation> Table element in siardArchive </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="name" type="xs:string"/>
+			<xs:element name="name" type="SQLIdentifierType"/>
+			<!-- changed from xs:string -->
 			<xs:element name="folder" type="fsName"/>
 			<xs:element name="description" type="xs:string" minOccurs="0"/>
 			<xs:element name="columns" type="columnsType"/>
@@ -141,12 +151,11 @@ Table element in siardArchive
 	<!-- complex type view -->
 	<xs:complexType name="viewType">
 		<xs:annotation>
-			<xs:documentation>
-View element in siardArchive
-</xs:documentation>
+			<xs:documentation> View element in siardArchive </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="name" type="xs:string"/>
+			<xs:element name="name" type="SQLIdentifierType"/>
+			<!-- changed from xs:string -->
 			<xs:element name="query" type="xs:string" minOccurs="0"/>
 			<xs:element name="queryOriginal" type="xs:string" minOccurs="0"/>
 			<xs:element name="description" type="xs:string" minOccurs="0"/>
@@ -170,12 +179,11 @@ View element in siardArchive
 	<!-- complex type column -->
 	<xs:complexType name="columnType">
 		<xs:annotation>
-			<xs:documentation>
-Column element in siardArchive
-</xs:documentation>
+			<xs:documentation> Column element in siardArchive </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="name" type="xs:string"/>
+			<xs:element name="name" type="SQLIdentifierType"/>
+			<!-- changed from xs:string -->
 			<xs:element name="folder" type="fsName" minOccurs="0"/>
 			<xs:element name="type" type="xs:string"/>
 			<xs:element name="typeOriginal" type="xs:string" minOccurs="0"/>
@@ -193,17 +201,202 @@ are stored as table constraints -->
 			<!-- description of the column's meaning and content -->
 		</xs:sequence>
 	</xs:complexType>
+
+	<!-- Datatype type column -->
+	<xs:complexType name="datatypeType">
+		<xs:annotation>
+			<xs:documentation> Datatype element in siardArchive </xs:documentation>
+		</xs:annotation>
+		<xs:group ref="datatypes"/>
+	</xs:complexType>
+
+	<xs:group name="datatypes">
+		<xs:choice>
+			<xs:group ref="predefinedDatatypes"/>
+			<xs:element name="array" type="collectionDatatypeType"/>
+			<xs:element name="udt" type="udtDatatypeType"/>
+			<!-- The UNSUPPORTED datatype allows other types to be added becoming an extension point for SIARD -->
+			<xs:element name="unsupported" type="xs:string"/>
+		</xs:choice>
+	</xs:group>
+
+	<xs:group name="predefinedDatatypes">
+		<xs:choice>
+			<xs:element name="character" type="characterDatatypeType"/>
+			<xs:group ref="exactNumericTypes"/>
+			<xs:group ref="approximateNumericTypes"/>
+			<xs:element name="boolean" type="booleanDatatypeType"/>
+			<xs:group ref="datetimeTypes"/>
+			<!-- TODO <xs:element name="interval" type="intervalDatatypeType"/> -->
+			<xs:element name="blob" type="binaryDatatypeType"/>
+		</xs:choice>
+	</xs:group>
+
+	<xs:complexType name="characterDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of character datatype. </xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="length" type="xs:nonNegativeInteger"/>
+		<!-- TODO: defined charset restrictions -->
+		<xs:attribute name="charset" type="xs:string"/>
+		<xs:attribute name="national" type="xs:boolean"/>
+		<xs:attribute name="varying" type="xs:boolean"/>
+		<xs:attribute name="largeObject" type="xs:boolean"/>
+	</xs:complexType>
+
+	<xs:group name="exactNumericTypes">
+		<xs:choice>
+			<xs:element name="decimal" type="decimalDatatypeType"/>
+			<xs:element name="integer" type="integerDatatypeType"/>
+		</xs:choice>
+	</xs:group>
+
+	<xs:group name="approximateNumericTypes">
+		<xs:choice>
+			<xs:element name="float" type="floatDatatypeType"/>
+			<xs:element name="real" type="realDatatypeType"/>
+			<xs:element name="doublePrecision" type="doublePrecisionDatatypeType"/>
+		</xs:choice>
+	</xs:group>
+
+	<xs:complexType name="decimalDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of decimal datatype. </xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="precision" type="xs:nonNegativeInteger"/>
+		<xs:attribute name="scale" type="xs:nonNegativeInteger"/>
+	</xs:complexType>
+
+	<xs:complexType name="integerDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of integer datatype. </xs:documentation>
+		</xs:annotation>
+
+		<!-- TODO: restrict to SMALL, MEDIUM or BIG -->
+		<xs:attribute name="size" type="xs:string"/>
+	</xs:complexType>
+
+	<xs:complexType name="floatDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of float datatype. </xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="precision" type="xs:nonNegativeInteger"/>
+	</xs:complexType>
+
+	<xs:complexType name="realDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of real datatype. </xs:documentation>
+		</xs:annotation>
+	</xs:complexType>
+
+	<xs:complexType name="doublePrecisionDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of double precision datatype. </xs:documentation>
+		</xs:annotation>
+	</xs:complexType>
+
+	<xs:complexType name="booleanDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of boolean precision datatype. </xs:documentation>
+		</xs:annotation>
+	</xs:complexType>
+
+	<xs:group name="datetimeTypes">
+		<xs:choice>
+			<xs:element name="date" type="dateDatatypeType"/>
+			<xs:element name="time" type="timeDatatypeType"/>
+			<xs:element name="timestamp" type="timestampDatatypeType"/>
+		</xs:choice>
+	</xs:group>
+
+	<xs:complexType name="dateDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of date precision datatype. </xs:documentation>
+		</xs:annotation>
+	</xs:complexType>
+
+	<xs:complexType name="timeDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of time datatype. </xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="precision" type="xs:nonNegativeInteger"/>
+		<xs:attribute name="timezone" type="xs:boolean"/>
+	</xs:complexType>
+
+	<xs:complexType name="timestampDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of timestamp datatype. </xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="precision" type="xs:nonNegativeInteger"/>
+		<xs:attribute name="timezone" type="xs:boolean"/>
+	</xs:complexType>
+
+	<xs:complexType name="binaryDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of binary datatype, aka BLOB. </xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="length" type="xs:nonNegativeInteger"/>
+		<!-- TODO: restrict lengthMultiplier to K, M or G, or something better -->
+		<xs:attribute name="lengthMultiplier" type="xs:string"/>
+		<!-- TODO: restrict lengthUnit to CHARACTERS, CODE_UNITS or OCTETS -->
+		<xs:attribute name="lengthUnit" type="xs:string"/>
+	</xs:complexType>
+
+	<xs:complexType name="collectionDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of Collection datatype, aka Array. </xs:documentation>
+		</xs:annotation>
+		<xs:group ref="datatypes"/>
+		<xs:attribute name="maxsize" type="xs:nonNegativeInteger"/>
+	</xs:complexType>
+
+	<xs:complexType name="udtDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of a User Defined Datatype. </xs:documentation>
+		</xs:annotation>
+		<xs:choice>
+			<xs:group ref="predefinedDatatypes"/>
+			<xs:element name="attributes" type="attributeListUdtDatatypeType"/>
+		</xs:choice>
+		<!-- TODO: may want to restrict name to a valid SQL Identifier -->
+		<xs:attribute name="name" type="xs:string" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="attributeListUdtDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of the list of attributes a user defined type can have.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="attribute" type="attributeUdtDatatypeType"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="attributeUdtDatatypeType">
+		<xs:annotation>
+			<xs:documentation> Definition of one of the attributes a user defined type can have.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="datatypes"/>
+		</xs:sequence>
+		<!-- TODO: may want to restrict name to a valid SQL Identifier -->
+		<xs:attribute name="name" type="xs:string" use="required"/>
+	</xs:complexType>
+
+	<!-- ENDED DATA TYPES DEFINITION -->
+
+
 	<!-- complex type primaryKey -->
 	<xs:complexType name="primaryKeyType">
 		<xs:annotation>
-			<xs:documentation>
-primaryKey element in siardArchive
-</xs:documentation>
+			<xs:documentation> primaryKey element in siardArchive </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="name" type="xs:string" minOccurs="0"/>
 			<xs:element name="description" type="xs:string" minOccurs="0"/>
-			<xs:element name="column" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="column" type="SQLIdentifierType" maxOccurs="unbounded"/>
+			<!-- changed from xs:string -->
 			<!-- database name of the primary key -->
 			<!-- description of the primary key's meaning and content -->
 			<!-- columns belonging to the primary key -->
@@ -212,9 +405,7 @@ primaryKey element in siardArchive
 	<!-- complex type foreignKeys -->
 	<xs:complexType name="foreignKeysType">
 		<xs:annotation>
-			<xs:documentation>
-List of foreign key constraints
-</xs:documentation>
+			<xs:documentation> List of foreign key constraints </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="foreignKey" type="foreignKeyType" maxOccurs="unbounded"/>
@@ -223,14 +414,14 @@ List of foreign key constraints
 	<!-- complex type foreignKey -->
 	<xs:complexType name="foreignKeyType">
 		<xs:annotation>
-			<xs:documentation>
-foreignKey element in siardArchive
-</xs:documentation>
+			<xs:documentation> foreignKey element in siardArchive </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="name" type="xs:string"/>
-			<xs:element name="referencedSchema" type="xs:string"/>
-			<xs:element name="referencedTable" type="xs:string"/>
+			<xs:element name="referencedSchema" type="SQLIdentifierType"/>
+			<!-- changed from xs:string -->
+			<xs:element name="referencedTable" type="SQLIdentifierType"/>
+			<!-- changed from xs:string -->
 			<xs:element name="reference" type="referenceType" maxOccurs="unbounded"/>
 			<xs:element name="matchType" type="matchTypeType" minOccurs="0"/>
 			<xs:element name="deleteAction" type="xs:string" minOccurs="0"/>
@@ -249,13 +440,13 @@ foreignKey element in siardArchive
 	<!-- complex type reference -->
 	<xs:complexType name="referenceType">
 		<xs:annotation>
-			<xs:documentation>
-reference element in siardArchive
-</xs:documentation>
+			<xs:documentation> reference element in siardArchive </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="column" type="xs:string"/>
-			<xs:element name="referenced" type="xs:string"/>
+			<xs:element name="column" type="SQLIdentifierType"/>
+			<!-- changed from xs:string -->
+			<xs:element name="referenced" type="SQLIdentifierType"/>
+			<!-- changed from xs:string -->
 			<!-- referencing column -->
 			<!-- referenced column (table.column) -->
 		</xs:sequence>
@@ -263,9 +454,7 @@ reference element in siardArchive
 	<!-- complex type candidateKeys -->
 	<xs:complexType name="candidateKeysType">
 		<xs:annotation>
-			<xs:documentation>
-List of candidate key (unique) constraints
-</xs:documentation>
+			<xs:documentation> List of candidate key (unique) constraints </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="candidateKey" type="candidateKeyType" maxOccurs="unbounded"/>
@@ -274,14 +463,13 @@ List of candidate key (unique) constraints
 	<!-- complex type candidateKey -->
 	<xs:complexType name="candidateKeyType">
 		<xs:annotation>
-			<xs:documentation>
-candiate key (unique) element in siardArchive
-</xs:documentation>
+			<xs:documentation> candiate key (unique) element in siardArchive </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="name" type="xs:string"/>
 			<xs:element name="description" type="xs:string" minOccurs="0"/>
-			<xs:element name="column" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="column" type="SQLIdentifierType" maxOccurs="unbounded"/>
+			<!-- changed from xs:string -->
 			<!-- database name of the candidate key -->
 			<!-- description of the candidate key's meaning and content -->
 			<!-- columns belonging to the candidate key -->
@@ -290,9 +478,7 @@ candiate key (unique) element in siardArchive
 	<!-- complex type check constraints -->
 	<xs:complexType name="checkConstraintsType">
 		<xs:annotation>
-			<xs:documentation>
-List of check constraints
-</xs:documentation>
+			<xs:documentation> List of check constraints </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="checkConstraint" type="checkConstraintType" maxOccurs="unbounded"/>
@@ -301,9 +487,7 @@ List of check constraints
 	<!-- complex type check constraint -->
 	<xs:complexType name="checkConstraintType">
 		<xs:annotation>
-			<xs:documentation>
-Check constraint element in siardArchive
-</xs:documentation>
+			<xs:documentation> Check constraint element in siardArchive </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="name" type="xs:string"/>
@@ -317,9 +501,7 @@ Check constraint element in siardArchive
 	<!-- complex type triggers -->
 	<xs:complexType name="triggersType">
 		<xs:annotation>
-			<xs:documentation>
-List of triggers
-</xs:documentation>
+			<xs:documentation> List of triggers </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="trigger" type="triggerType" maxOccurs="unbounded"/>
@@ -328,9 +510,7 @@ List of triggers
 	<!-- complex type trigger -->
 	<xs:complexType name="triggerType">
 		<xs:annotation>
-			<xs:documentation>
-Trigger element in siardArchive
-</xs:documentation>
+			<xs:documentation> Trigger element in siardArchive </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="name" type="xs:string"/>
@@ -350,9 +530,7 @@ Trigger element in siardArchive
 	<!-- complex type routines -->
 	<xs:complexType name="routinesType">
 		<xs:annotation>
-			<xs:documentation>
-List of routines
-</xs:documentation>
+			<xs:documentation> List of routines </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="routine" type="routineType" maxOccurs="unbounded"/>
@@ -361,9 +539,7 @@ List of routines
 	<!-- complex type routine -->
 	<xs:complexType name="routineType">
 		<xs:annotation>
-			<xs:documentation>
-Routine
-</xs:documentation>
+			<xs:documentation> Routine </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="name" type="xs:string"/>
@@ -385,9 +561,7 @@ Routine
 	<!-- complex type parameters -->
 	<xs:complexType name="parametersType">
 		<xs:annotation>
-			<xs:documentation>
-List of parameters of a routine
-</xs:documentation>
+			<xs:documentation> List of parameters of a routine </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="parameter" type="parameterType" maxOccurs="unbounded"/>
@@ -396,9 +570,7 @@ List of parameters of a routine
 	<!-- complex type parameter -->
 	<xs:complexType name="parameterType">
 		<xs:annotation>
-			<xs:documentation>
-Parameter of a routine
-</xs:documentation>
+			<xs:documentation> Parameter of a routine </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="name" type="xs:string"/>
@@ -416,9 +588,7 @@ Parameter of a routine
 	<!-- complex type users -->
 	<xs:complexType name="usersType">
 		<xs:annotation>
-			<xs:documentation>
-List of users
-</xs:documentation>
+			<xs:documentation> List of users </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="user" type="userType" maxOccurs="unbounded"/>
@@ -427,9 +597,7 @@ List of users
 	<!-- complex type user -->
 	<xs:complexType name="userType">
 		<xs:annotation>
-			<xs:documentation>
-User
-</xs:documentation>
+			<xs:documentation> User </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="name" type="xs:string"/>
@@ -441,9 +609,7 @@ User
 	<!-- complex type roles -->
 	<xs:complexType name="rolesType">
 		<xs:annotation>
-			<xs:documentation>
-List of roles
-</xs:documentation>
+			<xs:documentation> List of roles </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="role" type="roleType" maxOccurs="unbounded"/>
@@ -452,9 +618,7 @@ List of roles
 	<!-- complex type role -->
 	<xs:complexType name="roleType">
 		<xs:annotation>
-			<xs:documentation>
-Role
-</xs:documentation>
+			<xs:documentation> Role </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="name" type="xs:string"/>
@@ -468,9 +632,7 @@ Role
 	<!-- complex type privileges -->
 	<xs:complexType name="privilegesType">
 		<xs:annotation>
-			<xs:documentation>
-List of grants
-</xs:documentation>
+			<xs:documentation> List of grants </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="privilege" type="privilegeType" maxOccurs="unbounded"/>
@@ -479,9 +641,7 @@ List of grants
 	<!-- complex type privilege -->
 	<xs:complexType name="privilegeType">
 		<xs:annotation>
-			<xs:documentation>
-Grant (incl. grant of role)
-</xs:documentation>
+			<xs:documentation> Grant (incl. grant of role) </xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="type" type="xs:string"/>
@@ -501,7 +661,8 @@ Grant (incl. grant of role)
 	<!-- simple type for digest string -->
 	<xs:simpleType name="digestType">
 		<xs:annotation>
-			<xs:documentation>digestType must be empty or prefixed by MD5 oder SHA1</xs:documentation>
+			<xs:documentation>digestType must be empty or prefixed by MD5 oder
+				SHA1</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:whiteSpace value="collapse"/>
@@ -511,10 +672,8 @@ Grant (incl. grant of role)
 	<!-- simple type for version number -->
 	<xs:simpleType name="versionType">
 		<xs:annotation>
-			<xs:documentation>
-versionType must be constrained to "1.0"
-for conformity with this XLM schema
-</xs:documentation>
+			<xs:documentation> versionType must be constrained to "1.0" for conformity with this XLM
+				schema </xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:whiteSpace value="collapse"/>
@@ -524,9 +683,7 @@ for conformity with this XLM schema
 	<!-- simple type for privilege option -->
 	<xs:simpleType name="privOptionType">
 		<xs:annotation>
-			<xs:documentation>
-privOptionType must be "ADMIN" or "GRANT"
-</xs:documentation>
+			<xs:documentation> privOptionType must be "ADMIN" or "GRANT" </xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:whiteSpace value="collapse"/>
@@ -538,9 +695,7 @@ privOptionType must be "ADMIN" or "GRANT"
 which must contain at least 1 character -->
 	<xs:simpleType name="mandatoryString">
 		<xs:annotation>
-			<xs:documentation>
-mandatoryType must contain at least 1 character
-</xs:documentation>
+			<xs:documentation> mandatoryType must contain at least 1 character </xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:whiteSpace value="preserve"/>
@@ -550,10 +705,8 @@ mandatoryType must contain at least 1 character
 	<!-- simple type of a filesystem (file or folder) name -->
 	<xs:simpleType name="fsName">
 		<xs:annotation>
-			<xs:documentation>
-fsNames may only consist of ASCII characters and digits
-and must start with a non-digit
-</xs:documentation>
+			<xs:documentation> fsNames may only consist of ASCII characters and digits and must
+				start with a non-digit </xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:minLength value="1"/>
@@ -563,9 +716,7 @@ and must start with a non-digit
 	<!-- simple type for action time of a trigger -->
 	<xs:simpleType name="actionTimeType">
 		<xs:annotation>
-			<xs:documentation>
-actionTime is BEFORE or AFTER
-</xs:documentation>
+			<xs:documentation> actionTime is BEFORE or AFTER </xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="BEFORE"/>
@@ -575,9 +726,7 @@ actionTime is BEFORE or AFTER
 	<!-- simple type for match type of a foreign key -->
 	<xs:simpleType name="matchTypeType">
 		<xs:annotation>
-			<xs:documentation>
-matchType is FULL, PARTIAL or SIMPLE
-</xs:documentation>
+			<xs:documentation> matchType is FULL, PARTIAL or SIMPLE </xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="FULL"/>
@@ -585,4 +734,25 @@ matchType is FULL, PARTIAL or SIMPLE
 			<xs:enumeration value="SIMPLE"/>
 		</xs:restriction>
 	</xs:simpleType>
+	<!-- simple type SQLIdentifier - added by E-ARK-->
+	<xs:simpleType name="SQLIdentifierType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">SQL Identifier i SQL:1999 to be used for database names,
+				table names, column names</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="128"/>
+			<!--DEV - TO MAG: or is it 127? please count and check -->
+			<xs:pattern value="(\p{L}(_|\w)*)|(&quot;.*&quot;)">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">SQL identifiers (except for delimited
+						identifiers) must begin with a letter and may only contain letters, digits
+						and _ unless they are delimited.</xs:documentation>
+				</xs:annotation>
+			</xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+
 </xs:schema>
