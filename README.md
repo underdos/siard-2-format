@@ -4,7 +4,7 @@ SIARD (Software Independent Archival of Relational Databases) is a file format u
 
 SIARD 1.0 was developed by the Swiss Federal Archives and has been a Swiss standard since 2013 ([eCH-0165](http://www.bar.admin.ch/dienstleistungen/00823/01911/index.html?lang=en&download=NHzLpZeg7t,lnp6I0NTU042l2Z6ln1ad1IZn4Z2qZpnO2Yuq2Z6gpJCDeIN,gGym162epYbg2c_JjKbNoKSn6A--)). It is supported by the [SIARD Suite](http://www.bar.admin.ch/dienstleistungen/00823/01911/index.html?lang=en) which is closed source but free to use after accepting the license aggreement.
 
-A new version of SIARD is being developed under the [EARK project](http://www.eark-project.com/) and with the co-operation of the Swiss Federal Archives, including the development of a fully open-source tool that would support both versions of SIARD (1.0 and the new). This new version of SIARD is not yet named, but proposed names include SIARD-E and SIARD 2.0.
+A new version of SIARD is being developed under the [EARK project](http://www.eark-project.com/) and with the co-operation of the Swiss Federal Archives, including the development of a fully open-source tool that would support both versions of SIARD (1.0 and the new): the [database preservation toolkit](http://keeps.github.io/db-preservation-toolkit/). This new version of SIARD is not yet named, but proposed names include SIARD-E and SIARD 2.0.
 
 Here you will be able to find the SIARD-E specification, XML schemas and documentation. For reference you will also find information SIARDDK and DBML, which are formats used by the Danish National Archive and the Portuguese National Archive.
 
@@ -12,6 +12,10 @@ Here you will be able to find the SIARD-E specification, XML schemas and documen
 
 * [SIARD-E 1.1 metadata schema (draft)](https://raw.githubusercontent.com/eark-project/siard-e-format/master/metadata-SIARD-E-1.1.xsd)
 * [SIARD-E 1.0 metadata schema (draft)](https://raw.githubusercontent.com/eark-project/siard-e-format/master/metadata-SIARD-E-1.0.xsd)
+
+# Tools
+
+* [Database preservation toolkit](http://keeps.github.io/db-preservation-toolkit/)
 
 # Publications
 
