@@ -1,4 +1,4 @@
-# SIARD-E
+# SIARD 2.0 specification and examples
 
 SIARD (Software Independent Archival of Relational Databases) is a file format used in preservation of relational databases based on standards like XML and SQL:1999.
 
